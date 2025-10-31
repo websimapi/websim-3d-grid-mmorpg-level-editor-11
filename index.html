@@ -1,0 +1,147 @@
+<html>
+<head>
+  <base href=".">
+  <meta charset="UTF-8">
+  <title>3D Grid MMORPG Level Editor</title>
+  <link rel="stylesheet" href="base.css">
+  <link rel="stylesheet" href="toolbar.css">
+  <link rel="stylesheet" href="components.css">
+  <link rel="stylesheet" href="modals.css">
+  <link rel="stylesheet" href="chat.css">
+  
+  <!-- Load external dependencies first -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/RGBELoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/EXRLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/utils/BufferGeometryUtils.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  
+  <!-- Load core managers and utilities first -->
+  <script src="renderer-manager.js"></script>
+  <!-- New camera modules -->
+  <script src="camera-utils.js"></script>
+  <script src="camera-desktop-controls.js"></script>
+  <script src="camera-mobile-controls.js"></script>
+  <script src="camera-resize-handler.js"></script>
+  <script src="camera-manager.js"></script>
+  <script src="lighting-manager.js"></script>
+  <script src="raycast-manager.js"></script>
+  <script src="mobile-raycast-handler.js"></script>
+  <script src="interaction-util-manager.js"></script>
+  <script src="interaction-mobile-utils.js"></script>
+  <script src="interaction-click-handler.js"></script>
+  <script src="interaction-move-mode.js"></script>
+  <script src="interaction-manager.js"></script>
+  <script src="animation-manager.js"></script>
+  <script src="grid-manager.js"></script>
+  <script src="debug-tools.js"></script>
+  <script src="input-handler.js"></script>
+  <script src="preview-manager.js"></script>
+  
+  <!-- Load block and asset management -->
+  <script src="block-geometry-manager.js"></script>
+  <script src="block-material-manager.js"></script>
+  <script src="block-outline-manager.js"></script>
+  <script src="block-tools.js"></script>
+  <script src="placed-blocks.js"></script>
+  <script src="model-manager.js"></script>
+  <script src="texture-manager.js"></script>
+  
+  <!-- Load other managers -->
+  <script src="tool-state-manager.js"></script>
+  <script src="background-manager.js"></script>
+
+  <!-- Load texture management components -->
+  <script src="texture-file-handler.js"></script>
+  <script src="texture-application-ui.js"></script>
+  <script src="texture-generator.js"></script>
+  
+  <!-- Refactored ActionHistory UI component -->
+  <script src="action-history-ui.js"></script>
+  <!-- History command handlers must load before ActionHistory -->
+  <script src="block-history-commands.js"></script>
+  <script src="asset-history-commands.js"></script>
+  <script src="block-texture-history-commands.js"></script>
+  <script src="ground-texture-history-commands.js"></script>
+  <script src="background-history-commands.js"></script>
+  <script src="history-commands.js"></script>
+  <!-- Load action-history (logic only) -->
+  <script src="action-history.js"></script>
+
+  <!-- Refactored block tools -->
+  <script src="block-selection-manager.js"></script>
+  <script src="block-modification-manager.js"></script>
+  <script src="block-ui-manager.js"></script>
+
+  <script src="websocket-handler.js"></script>
+  <!-- Load file management components -->
+  <script src="level-serializer.js"></script>
+  <script src="level-importer.js"></script>
+  <script src="asset-serializer.js"></script>
+  <script src="file-manager.js"></script>
+  <script src="chat-system.js"></script>
+  
+  <!-- Load UI control components -->
+  <script src="toolbar-manager.js"></script>
+  <script src="draggable-sections.js"></script>
+  <script src="menu-state-manager.js"></script>
+  <script src="block-color-manager.js"></script>
+  <script src="tool-button-manager.js"></script>
+  <script src="ui-controls.js"></script>
+  
+  <script src="placed-assets-config.json" type="application/json"></script>
+  <script src="gizmo-manager.js"></script>
+  <script src="asset-rotation-ui.js"></script>
+  <script src="asset-selection-manager.js"></script>
+  <script src="placed-assets.js"></script>
+
+  <!-- Build UI layout dynamically before init -->
+  <script src="ui-layout.js"></script>
+  
+  <!-- Load initialization script -->
+  <script src="init.js"></script>
+</head>
+<body>
+  <div id="editor-container">
+    <div id="toolbar"></div>
+    <!-- removed inline toolbar sections -->
+    <div id="right-toolbar" class="hidden"></div>
+    <!-- removed inline right-toolbar sections -->
+    <div id="bottom-toolbar" class="hidden"></div>
+    <!-- removed inline bottom-toolbar sections -->
+
+    <button id="toggle-right-menu" class="menu-hidden">
+      <svg class="right-menu-arrow collapsed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M15 18l-6-6 6-6"/>
+      </svg>
+    </button>
+
+    <button id="toggle-bottom-menu" class="menu-hidden">
+      <svg class="bottom-menu-arrow collapsed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M15 18l-6-6 6-6"/>
+      </svg>
+    </button>
+    
+    <!-- Mobile rotation control -->
+    <div id="mobile-rotation-control" style="position: fixed; bottom: 20px; right: 20px; width: 80px; height: 80px; background: rgba(0,0,0,0.5); border-radius: 50%; border: 2px solid #666; z-index: 1001; display: none; cursor: grab;">
+      <div id="rotation-thumb" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 20px; height: 20px; background: #fff; border-radius: 50%; pointer-events: none;"></div>
+    </div>
+    
+    <div id="grid-container"></div>
+
+    <button id="toggle-menu">
+      <svg class="menu-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M15 18l-6-6 6-6"/>
+      </svg>
+    </button>
+  </div>
+
+  <div id="debug-console">
+    <h3 class="debug-header">Debug Console</h3>
+    <div id="debug-content"></div>
+  </div>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon='{"version":"2024.11.0","token":"4c6229722a6346bc8eb5cb0e5eae5d41","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>
